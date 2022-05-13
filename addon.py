@@ -1,4 +1,4 @@
-import libtools, os, sys
+import libmarusoftware, os, sys
 from importlib import import_module
 
 class Addon():
@@ -59,7 +59,7 @@ class Addon():
 class AddonAPI(object):
     def __init__(self, name, appinfo, filepath, ext, ui, app):
         self.name=name
-        self.logger=libtools.core.Logger(name=name, log_dir=appinfo["log"])
+        self.logger=libmarusoftware.core.Logger(name=name, log_dir=appinfo["log"])
         self.appinfo=appinfo
         self.filepath=filepath
         self.ext=ext
@@ -73,4 +73,4 @@ class AddonAPI(object):
         if __name == "saved":
             self.app.update_state()
     def getConfig(self, module="main", default_conf={}):
-        self.config=libtools.Config(appname=self.name, module=module, default_conf=default_conf, addon=self.appinfo)
+        self.config=libmarusoftware.Config(appname=self.name, module=module, default_conf=default_conf, addon=self.appinfo)

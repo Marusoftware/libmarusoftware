@@ -1,6 +1,6 @@
 from tkinter import Menu as _Menu
 import platform
-import libtools
+import libmarusoftware
 
 class Menu():
     def __init__(self, master, type, aqua=False, label="", **options):
@@ -25,7 +25,7 @@ class Menu():
             self.widget=Menubutton(master=master, **options)
     def add_category(self, label, name=None, **options):
         if name is None:
-            name=libtools.core.randomstr(10).lower()
+            name=libmarusoftware.core.randomstr(10).lower()
         if self.type == "bar":
             if name=="apple":
                 if not self.aqua:

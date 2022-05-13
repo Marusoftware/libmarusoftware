@@ -1,6 +1,6 @@
 import os
-from libtools.exception import UIError
-from libtools.ui.GUI_tkinter.menu import Menu as _Menu
+from libmarusoftware.exception import UIError
+from libmarusoftware.ui.GUI_tkinter.menu import Menu as _Menu
 
 class TKINTER():
     def __init__(self, config, logger, type="main", parent=None, label=None, **options):
