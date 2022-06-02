@@ -45,8 +45,10 @@ class CustomNotebook(ttk.Notebook):
         if "close" in element and self._active == index:
             #self.forget(index)
             self.event_generate("<<NotebookTabClosed>>")
-
-        self.state(["!pressed"])
+        try:
+            self.state(["!pressed"])
+        except tk.TclError:
+            pass
         self._active = None
 
     def __initialize_custom_style(self):

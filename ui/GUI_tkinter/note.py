@@ -1,7 +1,19 @@
 from . import WidgetBase
 
+class Tab:
+    id=0
+    frame=None
+    def __init__(self, notebook):
+        self._notebook=notebook
+    @property
+    def label(self):
+        return self._notebook.tab(self.id, "text")
+    @label.setter
+    def label(self, value):
+        self._notebook.tab(self.id, text=value)
+
 class Notebook(WidgetBase):
-    def __init__(self, master, parent, command=None, close=None, onzero=None, **options):
+    def __init__(self, master, parent, command=None, close=None, **options):
         super().__init__(master)
         self.parent=parent
         if close is None:
@@ -15,33 +27,45 @@ class Notebook(WidgetBase):
             self.widget.bind("<<NotebookTabClosed>>",lambda null: command(self.value))
         self.value=None
         self.widget.bind("<<NotebookTabChanged>>", self.callback)
-        self.onzero=onzero
+        self.tabs=[]
     def add_tab(self, label="", **options):
-        child=self.parent.Frame()
-        self.widget.add(child=child.root, text=label, **options)
-        return child
+        tab=Tab(self.widget)
+        tab.frame=self.parent.Frame()
+        self.tabs.append(tab)
+        self.widget.add(child=tab.frame.root, **options)
+        tab.id=str(tab.frame.root)
+        tab.label=label
+        return tab
     def select_tab(self, tab):
-        self.widget.select(self.tab2id(tab))
+        if isinstance(tab, Tab):
+            self.widget.select(tab.id)
+        else:
+            self.widget.select(tab)
     def del_tab(self, tab):
-        self.widget.forget(self.tab2id(tab))
+        if isinstance(tab, Tab):
+            self.widget.forget(tab.id)
+            self.tabs.remove(tab)
+        else:
+            id=self.widget.tabs()[self.widget.index(tab)]
+            for tab in self.tabs:
+                if tab.id == id:
+                    self.tabs.remove(tab)
+                    break
     def config_tab(self, tab, **options):
-        self.widget.tab(self.tab2id(tab), **options)
+        if isinstance(tab, Tab):
+            return self.widget.tab(tab.id, **options)
+        else:
+            return self.widget.tab(tab, **options)
     def list_tab(self):
-        return [self.widget.tab(i, "text") for i in self.widget.tabs()]
+        return self.tabs
     def callback(self, *event):
         try:
-            id=self.widget.index("current")
+            id=self.widget.tabs()[self.widget.index("current")]
         except:
-            if callable(self.onzero): self.onzero()
+            import traceback
+            traceback.print_exc()
         else:
-            self.value=self.widget.tab(id, "text")
-    def tab2id(self, tab):
-        if tab=="end":
-            return self.widget.tabs()[-1]
-        elif tab=="current":
-            return self.widget.index("current")
-        else:
-            for id in self.widget.tabs():
-                if tab == self.widget.tab(id, "text"):
+            for tab in self.tabs:
+                if tab.id==id:
+                    self.value=tab
                     break
-            return id
