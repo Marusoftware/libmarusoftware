@@ -1,8 +1,11 @@
-import os, json, platform, sys
+import os, json, platform, sys, logging
 __all__ = ["Config"]
 
 class Config():
     def __init__(self, appname, module=None, default_conf={}, cd=None, conf_dir=None, addon=None):
+        self.logger=logging.getLogger("Config")
+        self.logger.info("Start config loading.")
+        self.logger.debug("Getting appinfo.")
         if module is None:
             module=appname
         self.default_conf = default_conf
@@ -49,11 +52,14 @@ class Config():
         self.conf_dir = os.path.dirname(self.conf_path)
         os.makedirs(self.conf_dir,exist_ok=True)
         self.appinfo.update(conf=self.conf_dir, log=os.path.join(self.conf_dir, "log"))
+        self.logger.debug(f"Appinfo: {self.appinfo}")
         self.read()
     def flush(self):
+        self.logger.debug("Dumping config.")
         with open(self.conf_path, "w") as f:
             json.dump(self.conf, f)
     def read(self):
+        self.logger.debug("Loading config from file.")
         if os.path.exists(self.conf_path):
             with open(self.conf_path, "r") as f:
                 try:
@@ -83,10 +89,12 @@ class Config():
         else: 
             return self.conf[key]
     def __setitem__(self, key, value):
+        self.logger.debug(f"Config {key} was update/set-ed.")
         if self.conf[key]!=value:
             self.conf[key]=value
             self.flush()
     def __delitem__(self, key):
+        self.logger.debug(f"Config {key} was deleted.")
         self.conf.pop(key)
         self.flush()
 
@@ -96,19 +104,26 @@ class Lang():
         self.appinfo=appinfo
         self.lang_list=[os.path.splitext(i)[0] for i in os.listdir(self.appinfo["lang"]) if os.path.splitext(i)[1]==".lang"]
         self.lang=None
+        self.logger=logging.getLogger("Lang")
+        self.logger.info("l10n engine was initraized.")
     def getText(self, lang):
-        if os.path.exists(os.path.join(self.appinfo["lang"],lang+".lang")):
-            lang_path=os.path.join(self.appinfo["lang"],lang+".lang")
-        elif os.path.exists(os.path.join(self.appinfo["lang"],"".join(lang.split("_")[:-1])+".lang")):
-            lang_path=os.path.join(self.appinfo["lang"],"".join(lang.split("_")[:-1])+".lang")
-        else:
-            raise FileNotFoundError(f"Language File is not found.(Lang:{lang})")
-        with open(lang_path,"r", encoding="utf8") as f:
-            txt = json.load(f)
-        for i in range(len(self.req)):
-            if not self.req[i] in txt:
-                break
-        else:
-            self.lang=lang
-            return txt
-        raise KeyError("No Enough Key is in Language File.")
+        self.logger.info(f"Load language file for {lang}")
+        try:
+            if os.path.exists(os.path.join(self.appinfo["lang"],lang+".lang")):
+                lang_path=os.path.join(self.appinfo["lang"],lang+".lang")
+            elif os.path.exists(os.path.join(self.appinfo["lang"],"".join(lang.split("_")[:-1])+".lang")):
+                lang_path=os.path.join(self.appinfo["lang"],"".join(lang.split("_")[:-1])+".lang")
+            else:
+                raise FileNotFoundError(f"Language File is not found.(Lang:{lang})")
+            with open(lang_path,"r", encoding="utf8") as f:
+                txt = json.load(f)
+            for i in range(len(self.req)):
+                if not self.req[i] in txt:
+                    break
+            else:
+                self.lang=lang
+                self.logger.info(f"Language file was Successfully loaded.")
+                return txt
+            raise KeyError("No Enough Key is in Language File.")
+        except:
+            self.logger.exception("Error in loading language file:")

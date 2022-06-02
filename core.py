@@ -48,6 +48,7 @@ class Logger():
         logger.fileOut.setFormatter(logging.Formatter('%(levelname)s:%(asctime)s:%(name)s| %(message)s'))
         logger.addHandler(logger.fileOut)
         self.logger=logger
+        self.info(f"Loglevel: {log_level}")
         self.childs=[]
     def getChild(self, name):
         child=self.logger.getChild(name)
