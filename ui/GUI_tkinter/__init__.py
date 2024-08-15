@@ -66,11 +66,11 @@ class TKINTER():
             from tkinter import Toplevel
             self._root=Toplevel(master=self.parent._root)
             self.dnd=self.parent.dnd
+            self._root.focus_set()
             if type=="dialog":
-                self._root.wait_visibility()
-                self._root.focus_set()
+                from tkinter.simpledialog import _setup_dialog
+                _setup_dialog(self._root)
                 self._root.grab_set()
-                self.parent._root.attributes("-topmost", False)
         self.aqua=(self.appinfo["os"] == "Darwin" and self._root.tk.call('tk', 'windowingsystem') == "aqua")
         if type!="frame":
             import tkinter.ttk as ttk
@@ -173,7 +173,10 @@ class TKINTER():
     def mainloop(self):
         self._root.mainloop()
     def exist(self):
-        return self._root.winfo_exists()
+        try:
+            return self._root.winfo_exists()
+        except:
+            return False
 
 class WidgetBase():
     def __init__(self, master, **options):

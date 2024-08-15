@@ -10,6 +10,7 @@ class _Button(WidgetBase):
             self.var=IntVar(master=self.master, value=0)
             options["command"]=lambda: self.var.set(self.var.get()+1)
             self.widget=Button(self.master, text=label, **options)
+            self.widget.bind("<Destroy>", lambda _:self.release())
         else:
             self.var=None
             self.widget=Button(self.master, text=label, **options)
