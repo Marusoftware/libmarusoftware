@@ -82,8 +82,6 @@ class _Text(WidgetBase):
                 from .scrolledtext import ScrolledText as Text
         self.readonly=readonly
         self.widget=Text(self.master, state=("disabled" if self.readonly else "normal"),**options)
-        if not command is None:
-            self.widget.bind("<<Modified>>", lambda event: command())
     def insert(self, *args, **options):
         if self.readonly:
             self.configure(state="normal")
@@ -98,6 +96,8 @@ class _Text(WidgetBase):
         self.widget.edit_undo()
     def redo(self):
         self.widget.edit_redo()
+    def modified(self, flag=None):
+        return self.widget.edit_modified(flag)
 class _List(WidgetBase):
     def __init__(self, master, columns=[], header=False, scroll=True, **options):
         super().__init__(master)
