@@ -70,6 +70,7 @@ class TKINTER():
             if type=="dialog":
                 from tkinter.simpledialog import _setup_dialog
                 _setup_dialog(self._root)
+                self._root.wait_visibility()
                 self._root.grab_set()
         self.aqua=(self.appinfo["os"] == "Darwin" and self._root.tk.call('tk', 'windowingsystem') == "aqua")
         if type!="frame":
